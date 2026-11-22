@@ -82,24 +82,6 @@ describe('getRole', () => {
   });
 });
 
-describe('isBot', () => {
-  it('looks the account up by the test email endings', async () => {
-    mockPrisma.user.count.mockResolvedValueOnce(1).mockResolvedValueOnce(0);
-    expect(await repo.isBot(1)).toBe(true);
-    expect(await repo.isBot(2)).toBe(false);
-    expect(mockPrisma.user.count).toHaveBeenCalledWith({
-      where: {
-        id: 1,
-        OR: [
-          { email: { endsWith: '@fake.com' } },
-          { email: { endsWith: '.fake.com' } },
-          { email: { endsWith: '@bots.cyberstars.app' } },
-        ],
-      },
-    });
-  });
-});
-
 describe('getTutorProfile', () => {
   it('returns the stored score and interests, or none for a missing user', async () => {
     mockPrisma.user.findUnique.mockResolvedValueOnce({ placementScore: 9, interests: ['c'] });

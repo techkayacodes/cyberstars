@@ -266,7 +266,7 @@ describe('Tutor conversations', () => {
     expect(await prisma.tutorConversation.count({ where: { userId } })).toBe(50);
   });
 
-  it("counts a student's messages for the admin page, past a deleted conversation, never a moderator's, an admin's or a bot's", async () => {
+  it("counts a student's messages for the admin page, past a deleted conversation, never a moderator's or an admin's", async () => {
     const { agent: student } = await createAuthenticatedAgent();
     const { agent: admin, email } = await createAuthenticatedAgent();
     await prisma.user.update({ where: { id: await userIdFor(email) }, data: { role: 'ADMIN' } });
@@ -275,13 +275,11 @@ describe('Tutor conversations', () => {
       where: { id: await userIdFor(modEmail) },
       data: { role: 'MODERATOR' },
     });
-    const { agent: bot } = await createAuthenticatedAgent({ email: 'tutor@bots.cyberstars.app' });
 
     const first = await ask(student, {}).expect(200);
     await ask(student, { conversationId: conversationOf(first) }).expect(200);
     await ask(admin, {}).expect(200);
     await ask(moderator, {}).expect(200);
-    await ask(bot, {}).expect(200);
     await student.delete(`/api/tutor/conversations/${conversationOf(first)}`).expect(204);
 
     clearCache();

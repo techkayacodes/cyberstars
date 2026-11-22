@@ -117,9 +117,6 @@ export function AdminPage() {
                       {t(`forum.roles.${role}`)} {stats.users.byRole[role]}
                     </span>
                   ))}
-                  <span>
-                    {t('admin.bots')} {stats.users.bots}
-                  </span>
                   <span className="ml-auto">
                     {t('admin.onlineNow')}: {t('admin.signedIn', { count: stats.online.users })} ·{' '}
                     {t('admin.guestsOnline', { count: stats.online.guests })}

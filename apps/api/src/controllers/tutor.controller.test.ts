@@ -7,7 +7,7 @@ import { AppError } from '@cyberstars-framework/server-kit/errors';
 const mockTutor = { askTutor: vi.fn() };
 vi.mock('../services/tutor.service.js', () => mockTutor);
 
-const mockUserRepo = { getRole: vi.fn(), isBot: vi.fn() };
+const mockUserRepo = { getRole: vi.fn() };
 vi.mock('../repositories/user.repository.js', () => mockUserRepo);
 
 const mockStudent = { readStudent: vi.fn() };
@@ -91,7 +91,6 @@ async function* failing(err: Error, ...events: TutorStreamEvent[]) {
 beforeEach(() => {
   vi.clearAllMocks();
   mockUserRepo.getRole.mockResolvedValue('USER');
-  mockUserRepo.isBot.mockResolvedValue(false);
   mockStudent.readStudent.mockResolvedValue(null);
   mockConversations.recentHistory.mockResolvedValue(history);
   mockConversations.saveExchange.mockResolvedValue(NEW_ID);
@@ -549,19 +548,6 @@ describe('chat: counting messages for the admin page', () => {
       expect(mockConversations.saveExchange).toHaveBeenCalledOnce();
     },
   );
-
-  it("does not count a bot's message", async () => {
-    mockUserRepo.isBot.mockResolvedValue(true);
-    mockTutor.askTutor.mockReturnValue(
-      answer({ type: 'text', text: 'Hi.' }, { type: 'done', finish: 'complete' }),
-    );
-
-    await chat(mockReq(), mockRes() as unknown as Response, vi.fn());
-
-    expect(mockUserRepo.isBot).toHaveBeenCalledWith(5);
-    expect(mockConversations.notePrompt).not.toHaveBeenCalled();
-    expect(mockConversations.saveExchange).toHaveBeenCalledOnce();
-  });
 });
 
 // An answer of `tokens` tokens: the tutor counts them as it writes.

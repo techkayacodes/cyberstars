@@ -62,19 +62,6 @@ describe('Admin stats', () => {
     expect(res.body.users.byRole.ADMIN).toBe(2);
   });
 
-  it('counts our test accounts as bots, apart from the users', async () => {
-    const a = await admin();
-    await createAuthenticatedAgent({ email: 'kaizen@fake.com' });
-    await createAuthenticatedAgent({ email: 'aym@proton.fake.com' });
-    await createAuthenticatedAgent({ email: 'hogs@bots.cyberstars.app' });
-    await createAuthenticatedAgent();
-    const res = await a.get('/api/admin/stats').expect(200);
-    // Sentinel ADMIN + the promoted admin + 3 bots + 1 real student
-    expect(res.body.users.total).toBe(6);
-    expect(res.body.users.bots).toBe(3);
-    expect(res.body.users.byRole.USER).toBe(1);
-  });
-
   it('counts the signed-in users online, the founder left out', async () => {
     const a = await admin();
     const student = await userIdFor((await createAuthenticatedAgent()).email);

@@ -30,8 +30,7 @@ describe('userStats', () => {
     mockPrisma.user.count
       .mockResolvedValueOnce(10) // total
       .mockResolvedValueOnce(3) // newLast7Days
-      .mockResolvedValueOnce(6) // newLast30Days
-      .mockResolvedValueOnce(2); // bots
+      .mockResolvedValueOnce(6); // newLast30Days
     mockPrisma.user.groupBy.mockResolvedValueOnce([
       { role: 'ADMIN', _count: { _all: 1 } },
       { role: 'USER', _count: { _all: 8 } },
@@ -39,8 +38,7 @@ describe('userStats', () => {
     const result = await repo.userStats();
 
     expect(result.total).toBe(10);
-    expect(result.byRole).toEqual({ USER: 6, MODERATOR: 0, ADMIN: 1, FOUNDER: 0 });
-    expect(result.bots).toBe(2);
+    expect(result.byRole).toEqual({ USER: 8, MODERATOR: 0, ADMIN: 1, FOUNDER: 0 });
     expect(result.newLast7Days).toBe(3);
     expect(result.newLast30Days).toBe(6);
   });

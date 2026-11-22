@@ -1,5 +1,4 @@
 import { prisma } from '../config/db.js';
-import { BOT_EMAIL_ENDINGS } from './user.repository.js';
 import type { Role } from '@prisma/client';
 import type {
   AdminUserStats,
@@ -15,22 +14,17 @@ function daysAgo(days: number): Date {
 }
 
 export async function userStats(): Promise<AdminUserStats> {
-  const [total, roleGroups, newLast7Days, newLast30Days, bots] = await Promise.all([
+  const [total, roleGroups, newLast7Days, newLast30Days] = await Promise.all([
     prisma.user.count(),
     prisma.user.groupBy({ by: ['role'], _count: { _all: true } }),
     prisma.user.count({ where: { createdAt: { gte: daysAgo(7) } } }),
     prisma.user.count({ where: { createdAt: { gte: daysAgo(30) } } }),
-    prisma.user.count({
-      where: { role: 'USER', OR: BOT_EMAIL_ENDINGS.map((endsWith) => ({ email: { endsWith } })) },
-    }),
   ]);
 
   const byRole: Record<Role, number> = { USER: 0, MODERATOR: 0, ADMIN: 0, FOUNDER: 0 };
   for (const g of roleGroups) byRole[g.role] = g._count._all;
-  // Bots are USER accounts, shown apart from the real ones
-  byRole.USER -= bots;
 
-  return { total, byRole, bots, newLast7Days, newLast30Days };
+  return { total, byRole, newLast7Days, newLast30Days };
 }
 
 export async function progressStats(): Promise<AdminProgressStats> {
@@ -106,7 +100,7 @@ export async function supportStats(): Promise<AdminSupportStats> {
 }
 
 // How many messages students sent the tutor in the last 7 and 30 days; only
-// USER accounts that aren't bots were ever counted.
+// USER accounts were ever counted.
 export async function tutorStats(): Promise<AdminTutorStats> {
   const [promptsLast7Days, promptsLast30Days] = await Promise.all([
     prisma.tutorPrompt.count({ where: { createdAt: { gte: daysAgo(7) } } }),

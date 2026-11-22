@@ -69,16 +69,6 @@ export async function getRole(id: number): Promise<Role> {
   return (await findRole(id)) ?? 'USER';
 }
 
-// The test accounts we made ourselves, told apart by their email's domain
-export const BOT_EMAIL_ENDINGS = ['@fake.com', '.fake.com', '@bots.cyberstars.app'];
-
-export async function isBot(id: number): Promise<boolean> {
-  const found = await prisma.user.count({
-    where: { id, OR: BOT_EMAIL_ENDINGS.map((endsWith) => ({ email: { endsWith } })) },
-  });
-  return found > 0;
-}
-
 // What the tutor goes by about the student, besides their progress
 export async function getTutorProfile(
   id: number,
